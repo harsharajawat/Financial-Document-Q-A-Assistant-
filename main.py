@@ -19,7 +19,6 @@ from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 import streamlit as st
-import os
 
 # Utility Functions
 
@@ -104,9 +103,6 @@ def normalize_financial_dict(raw_dict):
         normalized[std_key] = clean_number(v)
     return normalized
 
-# -----------------------
-# Extract key-value pairs from free text using regex
-# -----------------------
 def extract_key_value_from_text(text):
     patterns = {
         "service_revenue": r"(service\s+revenue)[^\d\$]*\$?([\d,\.]+)",
@@ -129,9 +125,7 @@ def save_json(data, filename):
     with open(os.path.join("logs", filename), "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
-# -----------------------
-# PDF Extraction with normalization and print key-values
-# -----------------------
+
 def extract_pdf(file_path: str) -> Tuple[List[str], List[str], List[dict]]:
     text_chunks, table_summaries = [], []
     all_extracted_dicts = []
@@ -724,7 +718,6 @@ def build_rag_pipeline(raw_text_chunks):
 
     vectorstore.persist()
     
-    # Your RAG prompt template - replace with your prompt from hub or local template
     prompt_template = """
     You are a helpful financial assistant. Use ONLY the context below to answer the question. 
     If the answer is not contained in the context, politely respond that the information is not available.
