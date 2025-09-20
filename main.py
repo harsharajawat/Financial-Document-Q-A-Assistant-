@@ -630,64 +630,6 @@ def find_answer_in_normalized_data_w_yrs(query: str, normalized_dicts: list) -> 
 
     return ""
 
-
-
-# New combined helper to extract & query in one call
-def extract_and_query(file_path_or_obj, query: str, file_type: str = None) -> str:
-    """
-    Extracts data from given PDF or Excel file path/bytes and answers the query.
-    Parameters:
-        - file_path_or_obj: str file path or file-like object (e.g. BytesIO)
-        - query: question string to answer from extracted data
-        - file_type: explicitly set 'pdf' or 'excel' if needed (optional)
-    Returns:
-        - str: extracted answer or empty string if none found
-    """
-
-    # Determine extraction method
-    is_pdf = False
-    is_excel = False
-    if file_type:
-        is_pdf = file_type.lower() == "pdf"
-        is_excel = file_type.lower() == "excel"
-    else:
-        # Infer from filename or type
-        if isinstance(file_path_or_obj, str):
-            is_pdf = file_path_or_obj.lower().endswith(".pdf")
-            is_excel = file_path_or_obj.lower().endswith((".xls", ".xlsx"))
-        else:
-            # if file-like, require file_type arg or guess from BytesIO content maybe
-            raise ValueError("file_type must be specified for file-like objects")
-
-    # Extract data
-    if is_pdf:
-        text_chunks, table_summaries, extract_value = extract_pdf(file_path_or_obj)
-        # parse normalized dicts from saved logs or reconstruct here if needed
-        # For simplicity, we'll read from the log file saved by extract_pdf
-        try:
-            with open("logs/pdf_normalized_dicts.json", "r", encoding="utf-8") as f:
-                normalized_dicts = json.load(f)
-        except Exception:
-            normalized_dicts = []
-    elif is_excel:
-        if isinstance(file_path_or_obj, str):
-            with open(file_path_or_obj, "rb") as f:
-                text_chunks, table_summaries, extract_value = extract_excel_content(f)
-        else:
-            text_chunks, table_summaries, extract_value = extract_excel_content(file_path_or_obj)
-        try:
-            with open("logs/excel_normalized_dicts.json", "r", encoding="utf-8") as f:
-                normalized_dicts = json.load(f)
-        except Exception:
-            normalized_dicts = []
-    else:
-        raise ValueError("Unsupported file type for extraction.")
-
-    # Query extracted data
-    answer = find_answer_in_normalized_data_w_yrs(query, normalized_dicts)
-    return answer
-
-# New combined helper to extract & query in one call
 def extract_and_query(file_path_or_obj, query: str, file_type: str = None) -> str:
     """
     Extracts data from given PDF or Excel file path/bytes and answers the query.
